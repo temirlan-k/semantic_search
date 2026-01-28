@@ -1,0 +1,42 @@
+services:
+  postgres:
+    restart: always
+    image: postgres:17-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=semantic_search_user
+      - POSTGRES_PASSWORD=semantic_search_password
+      - POSTGRES_DB=semantic_search_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U semantic_search_user -d semantic_search_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DB__HOST=postgres
+      - DB__PORT=5432
+      - DB__NAME=semantic_search_db
+      - DB__USER=semantic_search_user
+      - DB__PASSWORD=semantic_search_password
+      - SECURITY__JWT_SECRET_KEY=icj2ouyvcOkIOG0a6-KM0KXfp3ICHmS5Iexo6knQamU
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/app
+
+volumes:
+  postgres-data:
+  
