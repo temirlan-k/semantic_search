@@ -1,6 +1,6 @@
 
 from pydantic import Field, UUID4
-from presentation.http.rest.api.v1.schemas.base import BaseSchema
+from src.presentation.http.rest.api.v1.schemas.base import BaseSchema
 
 class UserAuthRequest(BaseSchema):
     username: str = Field(..., min_length=3, max_length=50)
@@ -17,4 +17,7 @@ class UserLoginResponse(BaseSchema):
     token_type: str = Field(default="Bearer")
     expires_in: int
 
+
+class GetUserRequest(BaseSchema):
+    user_id: int
     

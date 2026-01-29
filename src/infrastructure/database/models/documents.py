@@ -1,6 +1,9 @@
+from typing import TYPE_CHECKING
 from src.infrastructure.database.models.mixins import Base, AutoincrementIDMixin, TimestampMixin, UUIDMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey
+if TYPE_CHECKING:
+    from src.infrastructure.database.models.users import UserDBModel
 
 
 class DocumentDBModel(Base, AutoincrementIDMixin, TimestampMixin, UUIDMixin):
@@ -16,7 +19,7 @@ class DocumentDBModel(Base, AutoincrementIDMixin, TimestampMixin, UUIDMixin):
     embedding_model: Mapped[str] = mapped_column(String(100), nullable=False)
     chunks_count: Mapped[int] = mapped_column(nullable=False, default=0)
 
-    user = relationship("User", back_populates="documents")
-
+    user: Mapped["UserDBModel"] = relationship("UserDBModel", back_populates="documents")
+    
     def __repr__(self) -> str:
         return f"<DocumentsDBModel id={self.id} uuid={self.uuid} filename={self.filename}>"

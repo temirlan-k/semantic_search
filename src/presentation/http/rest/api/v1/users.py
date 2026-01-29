@@ -1,12 +1,26 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from src.application.use_cases.user.get_user import UserUseCase
 from src.domain.exceptions.users import UserNotFoundException
-
+from dependency_injector.wiring import inject, Provide
+from main.di.container import Container
+from src.presentation.http.rest.api.v1.schemas.users import UserAuthRequest
 
 users_router = APIRouter()
 
 @users_router.get("/me")
-async def get_user(user_id: int):
-    if user_id != 1:
-        raise UserNotFoundException(f"User with id {user_id} not found")
-    return {"user_id": user_id, "username": "testuser"}
+@inject
+async def get_user(
+    user_id: str,
+    get_user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
+):
+    user = await get_user_use_case.get_user(user_id)
+    return {"user": user}
 
+@users_router.post("/")
+@inject
+async def create_user(
+    data: UserAuthRequest,
+    create_user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
+):
+    user = await create_user_use_case.create_user(data=data.model_dump())
+    return {"user": user}

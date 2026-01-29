@@ -1,14 +1,16 @@
 import logging
 from main.builders.base import AbstractAppBuilder
-from src.presentation.http.rest.api.v1.users import users_router
+from main.di.container import Container
+from src.presentation.http.rest.api.v1 import users
 from src.presentation.http.rest.api.error_handlers.error_handlers import register_error_handlers
 from config.config import Environment
+from dependency_injector import containers, providers
 
 class DevAppBuilder(AbstractAppBuilder):
 
     
     def configure_routes(self):
-        self.app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
+        self.app.include_router(users.users_router, prefix="/api/v1/users", tags=["users"])
     
     def setup_middlewares(self):
         from fastapi.middleware.cors import CORSMiddleware
@@ -32,4 +34,11 @@ class DevAppBuilder(AbstractAppBuilder):
         register_error_handlers(self.app)
 
     def configure_container(self):
-        pass
+        container = Container()
+        container.wire(
+            modules=[
+                users,
+            ]
+        )
+
+        self.app.container = container
