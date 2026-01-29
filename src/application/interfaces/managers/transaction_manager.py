@@ -1,9 +1,7 @@
-
 from abc import ABC, abstractmethod
 
 
 class ITrannsactionManager(ABC):
-    
     @abstractmethod
     async def __aenter__(self):
         pass

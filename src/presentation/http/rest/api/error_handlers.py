@@ -9,7 +9,6 @@ from src.domain.exceptions.users import (
 
 
 def register_error_handlers(app):
-    
     @app.exception_handler(UserNotFoundException)
     async def user_not_found_handler(request: Request, exc: UserNotFoundException):
         return JSONResponse(
@@ -25,7 +24,9 @@ def register_error_handlers(app):
         )
 
     @app.exception_handler(InvalidUserCredentialsException)
-    async def invalid_credentials_handler(request: Request, exc: InvalidUserCredentialsException):
+    async def invalid_credentials_handler(
+        request: Request, exc: InvalidUserCredentialsException
+    ):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"message": str(exc)},

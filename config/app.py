@@ -14,11 +14,7 @@ class AppSettings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8888
     workers: int = 4
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-
-
-
-

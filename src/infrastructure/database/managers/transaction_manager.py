@@ -1,5 +1,8 @@
 from src.application.interfaces.managers.transaction_manager import ITrannsactionManager
 from src.infrastructure.database.repositories.user import SQLAlchemyUserRepository
+from src.infrastructure.database.repositories.document import (
+    SQLAlchemyDocumentRepository,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -11,14 +14,14 @@ class SQLAlchemyTransactionManager(ITrannsactionManager):
     async def __aenter__(self):
         self.session = self._session_factory()
         self.user_repository = SQLAlchemyUserRepository(self.session)
+        self.document_repository = SQLAlchemyDocumentRepository(self.session)
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             await self.rollback()
         else:
             await self.commit()
-        print( "Closing session")
         await self.session.close()
 
     async def commit(self):
@@ -26,4 +29,3 @@ class SQLAlchemyTransactionManager(ITrannsactionManager):
 
     async def rollback(self):
         await self.session.rollback()
-        

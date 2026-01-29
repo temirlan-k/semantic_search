@@ -11,7 +11,7 @@ def create_app():
     builder = get_builder(settings)
 
     director = Director(builder)
-    
+
     return director.build_app()
 
 
@@ -19,6 +19,7 @@ app: "FastAPI" = create_app()
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "main.main:app",
         host=settings.app.host,

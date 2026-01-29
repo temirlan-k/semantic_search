@@ -1,6 +1,6 @@
-
-from pydantic import Field, UUID4
+from pydantic import Field
 from src.presentation.http.rest.api.v1.schemas.base import BaseSchema
+
 
 class UserAuthRequest(BaseSchema):
     username: str = Field(..., min_length=3, max_length=50)
@@ -20,4 +20,3 @@ class UserLoginResponse(BaseSchema):
 
 class GetUserRequest(BaseSchema):
     user_id: int
-    

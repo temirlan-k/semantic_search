@@ -17,6 +17,29 @@ services:
       timeout: 3s
       retries: 5
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+  milvus:
+    image: milvusdb/milvus:v2.3.3
+    container_name: milvus-lite
+    restart: always
+    environment:
+      - ETCD_USE_EMBED=true
+      - ETCD_DATA_DIR=/var/lib/milvus/etcd
+      - COMMON_STORAGETYPE=local
+    volumes:
+      - milvus-data:/var/lib/milvus
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    command: ["milvus", "run", "standalone"]
+
   backend:
     restart: always
     build:
@@ -29,6 +52,10 @@ services:
       - DB__USER=semantic_search_user
       - DB__PASSWORD=semantic_search_password
       - SECURITY__JWT_SECRET_KEY=icj2ouyvcOkIOG0a6-KM0KXfp3ICHmS5Iexo6knQamU
+      - OLLAMA__HOST=http://ollama:11434
+      - OLLAMA__MODEL=nomic-embed-text
+      - MILVUS__HOST=milvus
+      - MILVUS__PORT=19530
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,4 +66,6 @@ services:
 
 volumes:
   postgres-data:
+  ollama-data:
+  milvus-data:
   
