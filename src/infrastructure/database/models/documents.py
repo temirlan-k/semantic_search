@@ -18,9 +18,7 @@ class DocumentDBModel(Base, AutoincrementIDMixin, TimestampMixin, UUIDMixin):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"), nullable=False, index=True
     )
-    filename: Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False, index=True
-    )
+    filename: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False)
     file_size: Mapped[int] = mapped_column(nullable=False)

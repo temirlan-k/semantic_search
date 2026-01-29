@@ -1,3 +1,4 @@
+from src.application.use_cases.utils import normalize
 from src.infrastructure.database.managers.transaction_manager import (
     SQLAlchemyTransactionManager,
 )
@@ -38,6 +39,7 @@ class IngestDocumentUseCase:
 
         texts = [chunk.text for chunk in chunks]
         embeddings = await self.ollama.generate_embeddings_batch(texts, batch_size=5)
+        embeddings = [normalize(e) for e in embeddings]
 
         async with self._tm as tm:
             document_data = {
@@ -68,9 +70,25 @@ class IngestDocumentUseCase:
             filenames=filenames,
         )
 
+        chunk_infos = []
+        for chunk, embedding in zip(chunks, embeddings):
+            chunk_infos.append(
+                {
+                    "text": chunk.text,
+                    "page_number": chunk.page_number,
+                    "chunk_index": chunk.chunk_index,
+                    "embedding_dim": len(embedding),
+                    "char_count": len(chunk.text),
+                }
+            )
+
         return {
             "document_id": db_document.id,
             "filename": filename,
-            "chunks_count": len(chunks),
             "total_pages": len(pages),
+            "total_chunks": len(chunks),
+            "chunks": chunk_infos,
+            "embedding_model": self.ollama.model,
+            "chunk_size": chunk_size,
+            "chunk_overlap": chunk_overlap,
         }

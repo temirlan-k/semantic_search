@@ -50,7 +50,7 @@ class MilvusService:
             self.collection = Collection(name=collection_name, schema=schema)
 
             index_params = {
-                "metric_type": "IP",
+                "metric_type": "COSINE",
                 "index_type": "IVF_FLAT",
                 "params": {"nlist": 128},
             }
@@ -76,7 +76,7 @@ class MilvusService:
     async def search(
         self, query_embedding: List[float], top_k: int = 5, threshold: float = 0.0
     ) -> List[Dict[str, Any]]:
-        search_params = {"metric_type": "IP", "params": {"nprobe": 10}}
+        search_params = {"metric_type": "COSINE", "params": {"nprobe": 10}}
 
         results = self.collection.search(
             data=[query_embedding],

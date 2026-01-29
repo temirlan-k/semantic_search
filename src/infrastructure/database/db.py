@@ -6,11 +6,10 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 
-from src.application.interfaces.adapters.adapters import IAdapter
 from config.db import DBSettings
 
 
-class DatabaseAdapter(IAdapter):
+class DatabaseAdapter:
     def __init__(self, settings: "DBSettings") -> None:
         self._engine: "AsyncEngine" = create_async_engine(
             settings.url,

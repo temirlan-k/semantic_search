@@ -39,7 +39,6 @@ class OllamaService:
         return embeddings
 
     def get_embedding_dimension(self) -> int:
-        """Возвращает размерность эмбеддинга для модели"""
         model_dimensions = {
             "nomic-embed-text": 768,
             "mxbai-embed-large": 1024,

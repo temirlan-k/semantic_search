@@ -1,3 +1,4 @@
+import uuid
 from src.application.interfaces.repository.document_repository import (
     IDocumentRepository,
 )
@@ -10,9 +11,11 @@ class SQLAlchemyDocumentRepository(IDocumentRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_document_by_id(self, document_id: int):
-        result = await self.session.get(DocumentDBModel, document_id)
-        return result
+    async def get_document_by_id(self, document_id: uuid.UUID):
+        result = await self.session.execute(
+            select(DocumentDBModel).where(DocumentDBModel.uuid == document_id)
+        )
+        return result.scalars().first()
 
     async def get_documents_by_user_id(self, user_id: int):
         result = await self.session.execute(

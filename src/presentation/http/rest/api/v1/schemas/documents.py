@@ -7,7 +7,7 @@ class PDFTextResponse(BaseModel):
 
     filename: str
     total_pages: int
-    pages: List[Tuple[int, str]]  # (номер_страницы, текст)
+    pages: List[Tuple[int, str]]
     total_characters: int
 
 

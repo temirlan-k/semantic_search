@@ -13,5 +13,5 @@ class Director:
         self._builder.setup_middlewares()
         self._builder.configure_app_state()
         self._builder.configure_exception_handlers()
-        
+
         return self._builder.app

@@ -6,15 +6,18 @@ from src.infrastructure.database.managers.transaction_manager import (
 from src.infrastructure.embeddings.ollama_service import OllamaService
 from src.infrastructure.vector_db.milvus_service import MilvusService
 from config.db import DBSettings
+from config.security import SecuritySettings
 from config.config import settings
-from src.application.use_cases.user.get_user import UserUseCase
+from src.application.use_cases.user.user import UserUseCase
 from src.application.use_cases.document.ingest_document import IngestDocumentUseCase
+from src.application.use_cases.document.crud_document import CRUDDocumentUseCase
 from src.application.use_cases.document.search_documents import SearchDocumentsUseCase
 from src.infrastructure.pdf.pdf_parser import PDFParser
 
 
 class Container(containers.DeclarativeContainer):
     db_settings = providers.Singleton(DBSettings)
+    security_settings = providers.Singleton(SecuritySettings)
     db_adapter = providers.Singleton(
         DatabaseAdapter,
         settings=db_settings,
@@ -34,7 +37,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     user_use_case = providers.Factory(
-        UserUseCase, transaction_manager_factory=transaction_manager
+        UserUseCase, transaction_manager_factory=transaction_manager, security_settings=security_settings
     )
     ingest_document_use_case = providers.Factory(
         IngestDocumentUseCase,
@@ -48,3 +51,10 @@ class Container(containers.DeclarativeContainer):
         ollama_service=ollama_service,
         milvus_service=milvus_service,
     )
+    crud_document_use_case = providers.Factory(
+        CRUDDocumentUseCase,
+        transaction_manager_factory=transaction_manager,
+        milvus_service=milvus_service,
+    )
+    
+
