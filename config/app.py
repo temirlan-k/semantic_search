@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Environment(str, Enum):
@@ -15,6 +15,6 @@ class AppSettings(BaseSettings):
     port: int = 8888
     workers: int = 4
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="APP__", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )

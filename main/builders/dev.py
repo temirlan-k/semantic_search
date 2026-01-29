@@ -1,8 +1,9 @@
+from prometheus_fastapi_instrumentator import Instrumentator
 import structlog
 import logging
 from main.builders.base import AbstractAppBuilder
 from main.di.container import Container
-from src.presentation.http.rest.api.v1 import users, documents, deps
+from src.presentation.http.rest.api.v1 import users, documents, deps, metrics
 from src.presentation.http.rest.api.error_handlers import (
     register_error_handlers,
 )
@@ -22,6 +23,7 @@ class DevAppBuilder(AbstractAppBuilder):
         self.app.include_router(
             documents.documents_router, prefix="/api/v1/documents", tags=["documents"]
         )
+        self.app.include_router(metrics.metrics_router)
 
     def setup_middlewares(self):
         self.app.add_middleware(
@@ -58,6 +60,12 @@ class DevAppBuilder(AbstractAppBuilder):
         self.app.state.db = self.container.db_adapter()
 
         self.app.state.to_close_adapters = ["milvus_service", "db"]
+
+        instrumentator = Instrumentator(
+            should_group_status_codes=False,
+            should_ignore_untemplated=True,
+        )
+        instrumentator.instrument(self.app).expose(self.app, endpoint="/metrics")
 
     def configure_exception_handlers(self):
         register_error_handlers(self.app)

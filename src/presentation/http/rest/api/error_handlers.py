@@ -5,7 +5,7 @@ from src.domain.exceptions.exceptions import (
     EntityAlreadyExistsException,
     EntityNotFoundException,
     InvalidCredentialsException,
-    UnauthorizedException
+    UnauthorizedException,
 )
 
 
@@ -34,9 +34,7 @@ def register_error_handlers(app):
         )
 
     @app.exception_handler(UnauthorizedException)
-    async def unauth_handler(
-        request: Request, exc: UnauthorizedException
-    ):
+    async def unauth_handler(request: Request, exc: UnauthorizedException):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"message": str(exc)},

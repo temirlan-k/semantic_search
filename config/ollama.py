@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class OllamaSettings(BaseSettings):
@@ -6,7 +6,10 @@ class OllamaSettings(BaseSettings):
     model: str = "nomic-embed-text"
     timeout: int = 120
 
-    class Config:
-        env_prefix = "OLLAMA__"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="OLLAMA__",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_nested_delimiter="__",
+    )

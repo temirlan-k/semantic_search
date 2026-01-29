@@ -12,6 +12,7 @@ class EntityAlreadyExistsException(Exception):
 
 class InvalidCredentialsException(Exception):
     """Invalid credentials."""
+
     pass
 
 
@@ -19,4 +20,5 @@ class UnauthorizedException(Exception):
     """
     Docstring for UnauthorizedException
     """
+
     pass

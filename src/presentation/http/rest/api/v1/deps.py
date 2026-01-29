@@ -1,5 +1,5 @@
 import structlog
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.application.use_cases.user.user import UserUseCase

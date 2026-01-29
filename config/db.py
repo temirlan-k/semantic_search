@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DBSettings(BaseSettings):
@@ -36,6 +36,6 @@ class DBSettings(BaseSettings):
             f"@{self.host}:{self.port}/{self.name}"
         )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="DB__", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )

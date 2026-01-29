@@ -37,7 +37,9 @@ class Container(containers.DeclarativeContainer):
     )
 
     user_use_case = providers.Factory(
-        UserUseCase, transaction_manager_factory=transaction_manager, security_settings=security_settings
+        UserUseCase,
+        transaction_manager_factory=transaction_manager,
+        security_settings=security_settings,
     )
     ingest_document_use_case = providers.Factory(
         IngestDocumentUseCase,
@@ -56,5 +58,3 @@ class Container(containers.DeclarativeContainer):
         transaction_manager_factory=transaction_manager,
         milvus_service=milvus_service,
     )
-    
-

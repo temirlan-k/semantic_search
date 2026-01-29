@@ -1,16 +1,20 @@
-from src.infrastructure.database.managers.transaction_manager import SQLAlchemyTransactionManager
+from src.infrastructure.database.managers.transaction_manager import (
+    SQLAlchemyTransactionManager,
+)
 from src.infrastructure.vector_db.milvus_service import MilvusService
 from src.domain.exceptions.exceptions import EntityNotFoundException
 
+
 class CRUDDocumentUseCase:
-    def __init__(self, milvus_service: MilvusService,       
-                  transaction_manager_factory: SQLAlchemyTransactionManager,
-):
+    def __init__(
+        self,
+        milvus_service: MilvusService,
+        transaction_manager_factory: SQLAlchemyTransactionManager,
+    ):
         self._tm = transaction_manager_factory
         self.milvus = milvus_service
-        
 
-    async def list_documents(self, user_id: int)->dict:
+    async def list_documents(self, user_id: int) -> dict:
         async with self._tm as tm:
             documents = await tm.document_repository.get_documents_by_user_id(user_id)
 
@@ -46,4 +50,7 @@ class CRUDDocumentUseCase:
 
             await tm.document_repository.delete_document(document_id)
 
-        return {"message": "Document deleted successfully", "deleted_chunks": document.chunks_count}
+        return {
+            "message": "Document deleted successfully",
+            "deleted_chunks": document.chunks_count,
+        }

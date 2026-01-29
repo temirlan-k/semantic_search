@@ -22,7 +22,9 @@ documents_router = APIRouter(prefix="/documents", tags=["documents"])
 async def ingest_pdf(
     file: UploadFile = File(..., description="PDF файл"),
     chunk_size: int = Form(default=1000, gt=100, lt=2000, description="Размер чанка"),
-    chunk_overlap: int = Form(default=200, gt=0, lt=2000, description="Перекрытие чанков"),
+    chunk_overlap: int = Form(
+        default=200, gt=0, lt=2000, description="Перекрытие чанков"
+    ),
     current_user_id: int = Depends(get_current_user_id),
     use_case: IngestDocumentUseCase = Depends(
         Provide[Container.ingest_document_use_case]
@@ -64,7 +66,9 @@ async def search_documents(
     ),
 ):
     result = await use_case.execute(
-        query=request.query, top_k=request.top_k, threshold=request.threshold,
+        query=request.query,
+        top_k=request.top_k,
+        threshold=request.threshold,
     )
 
     search_results = [
@@ -83,7 +87,9 @@ async def search_documents(
     )
 
 
-@documents_router.get("/list_documents", )
+@documents_router.get(
+    "/list_documents",
+)
 @inject
 async def list_documents(
     current_user_id: int = Depends(get_current_user_id),
@@ -92,7 +98,9 @@ async def list_documents(
     return await use_case.list_documents(current_user_id)
 
 
-@documents_router.get("/{document_id}", )
+@documents_router.get(
+    "/{document_id}",
+)
 @inject
 async def get_document(
     document_id: UUID4,

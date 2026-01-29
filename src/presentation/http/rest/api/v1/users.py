@@ -36,5 +36,3 @@ async def me(
 ):
     result = await user_use_case.get_user(user_id=current_user_id)
     return result
-
-

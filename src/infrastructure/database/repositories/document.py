@@ -1,5 +1,5 @@
 import uuid
-from src.application.interfaces.repository.document_repository import (
+from application.interfaces.repositories.document_repository import (
     IDocumentRepository,
 )
 from src.infrastructure.database.models.documents import DocumentDBModel

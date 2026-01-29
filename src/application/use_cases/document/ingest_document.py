@@ -1,3 +1,5 @@
+from src.infrastructure.prometheus.tracker import track_metrics
+from src.infrastructure.prometheus.metrics import documents_uploaded, pdf_indexing_time
 from src.application.use_cases.utils import normalize
 from src.infrastructure.database.managers.transaction_manager import (
     SQLAlchemyTransactionManager,
@@ -21,6 +23,7 @@ class IngestDocumentUseCase:
         self.milvus = milvus_service
         self.pdf_parser = pdf_parser
 
+    @track_metrics(counter=documents_uploaded, histogram=pdf_indexing_time)
     async def execute(
         self,
         user_id: int,
