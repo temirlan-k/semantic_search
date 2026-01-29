@@ -11,7 +11,6 @@ def track_metrics(counter: Counter = None, histogram: Histogram = None):
             start = asyncio.get_event_loop().time()
             result = await func(*args, **kwargs)
             duration = asyncio.get_event_loop().time() - start
-            print("METRICS BRO")
             if histogram:
                 histogram.observe(duration)
             if counter:

@@ -44,3 +44,11 @@ class OllamaService:
             "mxbai-embed-large": 1024,
         }
         return model_dimensions.get(self.model, 768)
+
+    async def healthcheck(self) -> bool:
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                response = await client.get(f"{self.host}/")
+                return response.status_code == 200
+        except Exception:
+            return False

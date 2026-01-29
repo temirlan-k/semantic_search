@@ -3,7 +3,7 @@ import structlog
 import logging
 from main.builders.base import AbstractAppBuilder
 from main.di.container import Container
-from src.presentation.http.rest.api.v1 import users, documents, deps, metrics
+from src.presentation.http.rest.api.v1 import users, documents, deps, utils
 from src.presentation.http.rest.api.error_handlers import (
     register_error_handlers,
 )
@@ -23,7 +23,7 @@ class DevAppBuilder(AbstractAppBuilder):
         self.app.include_router(
             documents.documents_router, prefix="/api/v1/documents", tags=["documents"]
         )
-        self.app.include_router(metrics.metrics_router)
+        self.app.include_router(utils.utils_router, prefix="/api/v1/utils",tags=["utils"])
 
     def setup_middlewares(self):
         self.app.add_middleware(
@@ -72,4 +72,4 @@ class DevAppBuilder(AbstractAppBuilder):
 
     def configure_container(self):
         self.container = Container()
-        self.container.wire(modules=[users, documents, deps])
+        self.container.wire(modules=[users, documents, deps, utils])

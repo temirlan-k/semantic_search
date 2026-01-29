@@ -1,4 +1,4 @@
-from src.application.interfaces.repository.user_repository import IUserRepository
+from src.application.interfaces.repositories.user_repository import IUserRepository
 from src.infrastructure.database.models.users import UserDBModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

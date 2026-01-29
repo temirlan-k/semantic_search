@@ -109,3 +109,16 @@ class MilvusService:
 
     async def close(self):
         connections.disconnect("default")
+
+    async def healthcheck(self) -> bool:
+        try:
+            if not connections.has_connection("default"):
+                return False
+            
+            if self.collection:
+                self.collection.num_entities
+            else:
+                return utility.has_collection(self.settings.collection_name)
+            return True
+        except Exception:
+            return False
