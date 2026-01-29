@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from config.config import settings
 from main.builders import get_builder
-from main.director import Director
+from main.builders.director import Director
 
 if TYPE_CHECKING:
     from fastapi import FastAPI

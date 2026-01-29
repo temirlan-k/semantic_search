@@ -1,3 +1,4 @@
+import structlog
 from fastapi import APIRouter, Response, Depends
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
@@ -8,6 +9,7 @@ from dependency_injector.wiring import inject, Provide
 from main.di.container import Container
 
 utils_router = APIRouter()
+logger = structlog.get_logger()
 
 
 @utils_router.get("/metrics")
@@ -23,6 +25,7 @@ async def heatlhchecker(
     milvus: MilvusService = Depends(Provide[Container.milvus_service]),
     ollama: OllamaService = Depends(Provide[Container.ollama_service]),
 ):
+    logger.info("Call from heatlh-check api endpoint")
     db = await db.healthcheck()
     milvus = await milvus.healthcheck()
     ollama = await ollama.healthcheck()
