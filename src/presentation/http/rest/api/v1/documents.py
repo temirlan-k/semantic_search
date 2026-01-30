@@ -112,7 +112,8 @@ async def get_document(
     current_user_id: int = Depends(get_current_user_id),
     use_case: CRUDDocumentUseCase = Depends(Provide[Container.crud_document_use_case]),
 ):
-    return await use_case.get_document(document_id, current_user_id)
+    results = await use_case.get_document(document_id, current_user_id)
+    return results
 
 
 @documents_router.delete("/{document_id}", response_model=DeleteDocumentResponse)
