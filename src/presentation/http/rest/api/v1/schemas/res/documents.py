@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Tuple
+from pydantic import UUID4
 
 from src.presentation.http.rest.api.v1.schemas import BaseSchema
 
@@ -13,7 +14,7 @@ class ChunkInfo(BaseSchema):
 
 
 class DocumentListItemResponse(BaseSchema):
-    document_id: str
+    document_id: UUID4
     filename: str
     chunks_count: int
     uploaded_at: datetime
