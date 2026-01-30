@@ -22,3 +22,21 @@ class UnauthorizedException(Exception):
     """
 
     pass
+
+
+class DocumentProcessingException(Exception):
+    """Ошибка при обработке документа (парсинг, чанкинг)"""
+
+    pass
+
+
+class LLMServiceException(Exception):
+    """Ошибка при обращении к LLM сервису (Ollama)"""
+
+    pass
+
+
+class VectorDBException(Exception):
+    """Ошибка при работе с векторной базой данных (Milvus)"""
+
+    pass

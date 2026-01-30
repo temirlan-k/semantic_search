@@ -101,7 +101,8 @@ async def list_documents(
     current_user_id: int = Depends(get_current_user_id),
     use_case: CRUDDocumentUseCase = Depends(Provide[Container.crud_document_use_case]),
 ):
-    return await use_case.list_documents(current_user_id)
+    documents_list = await use_case.list_documents(current_user_id)
+    return {"documents": documents_list}
 
 
 @documents_router.get("/{document_id}", response_model=DocumentListItemResponse)

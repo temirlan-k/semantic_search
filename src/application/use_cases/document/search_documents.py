@@ -3,6 +3,7 @@ from src.infrastructure.prometheus.metrics import search_time
 from src.application.use_cases.utils import normalize
 from src.infrastructure.embeddings.ollama_service import OllamaService
 from src.infrastructure.vector_db.milvus_service import MilvusService
+from src.domain.exceptions.exceptions import LLMServiceException, VectorDBException
 
 
 class SearchDocumentsUseCase:
@@ -16,10 +17,18 @@ class SearchDocumentsUseCase:
 
     @track_metrics(histogram=search_time)
     async def execute(self, query: str, top_k: int = 5, threshold: float = 0.0):
-        query_embedding = await self.ollama.generate_embedding(query)
+        try:
+            query_embedding = await self.ollama.generate_embedding(query)
+        except Exception as e:
+            raise LLMServiceException(f"Failed to generate query embedding: {str(e)}")
 
-        results = await self.milvus.search(
-            query_embedding=normalize(query_embedding), top_k=top_k, threshold=threshold
-        )
+        try:
+            results = await self.milvus.search(
+                query_embedding=normalize(query_embedding),
+                top_k=top_k,
+                threshold=threshold,
+            )
+        except Exception as e:
+            raise VectorDBException(f"Failed to search in Milvus: {str(e)}")
 
         return {"query": query, "results": results, "total_found": len(results)}

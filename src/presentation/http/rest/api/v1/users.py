@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 from dependency_injector.wiring import inject, Provide
 
+from src.presentation.http.rest.api.v1.deps import get_current_user_id
 from src.presentation.http.rest.api.v1.schemas.req.users import UserAuthRequest
 from src.presentation.http.rest.api.v1.schemas.res.users import (
     UserLoginResponse,
     UserMeResponse,
     UserRegisterResponse,
 )
-from src.presentation.http.rest.api.deps import get_current_user_id
 from src.application.use_cases.user.user import UserUseCase
 from main.di.container import Container
 
