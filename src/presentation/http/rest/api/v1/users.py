@@ -1,34 +1,40 @@
 from fastapi import APIRouter, Depends
+from dependency_injector.wiring import inject, Provide
+
+from src.presentation.http.rest.api.v1.schemas.req.users import UserAuthRequest
+from src.presentation.http.rest.api.v1.schemas.res.users import (
+    UserLoginResponse,
+    UserMeResponse,
+    UserRegisterResponse,
+)
 from src.presentation.http.rest.api.deps import get_current_user_id
 from src.application.use_cases.user.user import UserUseCase
-from dependency_injector.wiring import inject, Provide
 from main.di.container import Container
-from src.presentation.http.rest.api.v1.schemas.users import UserAuthRequest
 
 users_router = APIRouter()
 
 
-@users_router.post("/register")
+@users_router.post("/register", response_model=UserRegisterResponse)
 @inject
 async def create_user(
     data: UserAuthRequest,
     user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
 ):
-    result = await user_use_case.register_user(request=data)
+    result = await user_use_case.register_user(request=data.model_dump())
     return result
 
 
-@users_router.post("/login")
+@users_router.post("/login", response_model=UserLoginResponse)
 @inject
 async def login_user(
     data: UserAuthRequest,
     user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
 ):
-    result = await user_use_case.authenticate_user(request=data)
+    result = await user_use_case.authenticate_user(request=data.model_dump())
     return result
 
 
-@users_router.post("/me")
+@users_router.post("/me", response_model=UserMeResponse)
 @inject
 async def me(
     current_user_id: int = Depends(get_current_user_id),

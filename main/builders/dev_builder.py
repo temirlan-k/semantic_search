@@ -24,7 +24,9 @@ class DevAppBuilder(AbstractAppBuilder):
         self.app.include_router(
             documents.documents_router, prefix="/api/v1/documents", tags=["documents"]
         )
-        self.app.include_router(utils.utils_router, prefix="/api/v1/utils",tags=["utils"])
+        self.app.include_router(
+            utils.utils_router, prefix="/api/v1/utils", tags=["utils"]
+        )
 
     def setup_middlewares(self):
         self.app.add_middleware(

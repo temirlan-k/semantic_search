@@ -1,18 +1,26 @@
+from pydantic import UUID4
 from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
 from src.application.use_cases.document.crud_document import CRUDDocumentUseCase
-from src.presentation.http.rest.api.v1.schemas.documents import (
+from src.presentation.http.rest.api.v1.schemas.res.documents import (
     PDFIngestResponse,
     ChunkInfo,
-    SearchRequest,
+)
+from src.presentation.http.rest.api.v1.schemas.res.search import (
     SearchResponse,
     SearchResultItem,
 )
+from src.presentation.http.rest.api.v1.schemas.req.search import SearchRequest
+from src.presentation.http.rest.api.v1.schemas.res.documents import (
+    DocumentListItemResponse,
+    DocumentListResponse,
+    DeleteDocumentResponse,
+)
+
 from src.presentation.http.rest.api.v1.deps import get_current_user_id
 from src.application.use_cases.document.ingest_document import IngestDocumentUseCase
 from src.application.use_cases.document.search_documents import SearchDocumentsUseCase
 from dependency_injector.wiring import inject, Provide
 from main.di.container import Container
-from pydantic import UUID4
 
 documents_router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -87,9 +95,7 @@ async def search_documents(
     )
 
 
-@documents_router.get(
-    "/list_documents",
-)
+@documents_router.get("/list_documents", response_model=DocumentListResponse)
 @inject
 async def list_documents(
     current_user_id: int = Depends(get_current_user_id),
@@ -98,9 +104,7 @@ async def list_documents(
     return await use_case.list_documents(current_user_id)
 
 
-@documents_router.get(
-    "/{document_id}",
-)
+@documents_router.get("/{document_id}", response_model=DocumentListItemResponse)
 @inject
 async def get_document(
     document_id: UUID4,
@@ -110,7 +114,7 @@ async def get_document(
     return await use_case.get_document(document_id, current_user_id)
 
 
-@documents_router.delete("/{document_id}")
+@documents_router.delete("/{document_id}", response_model=DeleteDocumentResponse)
 @inject
 async def delete_document(
     document_id: UUID4,

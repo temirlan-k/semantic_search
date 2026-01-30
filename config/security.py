@@ -14,5 +14,7 @@ class SecuritySettings(BaseSettings):
     jwt_algorithm: str = "HS256"
 
     model_config = SettingsConfigDict(
-        env_nested_delimiter="__", env_file=".env", extra="ignore",
+        env_nested_delimiter="__",
+        env_file=".env",
+        extra="ignore",
     )

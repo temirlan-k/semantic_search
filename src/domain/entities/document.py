@@ -5,7 +5,7 @@ from datetime import datetime
 @dataclass
 class Document:
     id: int | None
-    uuid: str
+    uuid: str | None
     user_id: int
     filename: str
     content_type: str

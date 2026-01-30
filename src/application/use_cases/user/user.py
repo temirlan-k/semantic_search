@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 from datetime import timedelta
+
+import structlog
 
 from src.domain.exceptions.exceptions import (
     EntityNotFoundException,
@@ -9,47 +10,14 @@ from src.domain.exceptions.exceptions import (
 from src.infrastructure.database.managers.transaction_manager import (
     SQLAlchemyTransactionManager,
 )
-from src.infrastructure.security.password_handler import hash_password, verify_password
-from src.infrastructure.security.jwt_handler import (
-    create_access_token,
+from src.infrastructure.security.password_handler import (
+    hash_password,
+    verify_password,
 )
-import structlog
+from src.infrastructure.security.jwt_handler import create_access_token
 from config.security import SecuritySettings
 
 logger = structlog.get_logger()
-
-
-@dataclass
-class RegisterUserRequest:
-    """DTO для регистрации пользователя"""
-
-    username: str
-    password: str
-
-
-@dataclass
-class LoginRequest:
-    """DTO для аутентификации"""
-
-    username: str
-    password: str
-
-
-@dataclass
-class TokenResponse:
-    """DTO для ответа с токенами"""
-
-    access_token: str
-    token_type: str = "Bearer"
-    expires_in: int = 0
-
-
-@dataclass
-class UserResponse:
-    """DTO для ответа с данными пользователя"""
-
-    id: int
-    username: str
 
 
 class UserUseCase:
@@ -61,53 +29,44 @@ class UserUseCase:
         self._tm = transaction_manager_factory
         self._security_settings = security_settings
 
-    async def register_user(self, request: RegisterUserRequest):
-        logger.info("Registering new user", username=request.username)
+    async def register_user(self, request: dict) -> dict:
+        username = request["username"]
+        password = request["password"]
+
+        logger.info("Registering new user", username=username)
 
         async with self._tm as tm:
-            existing_user = await tm.user_repository.get_user_by_username(
-                request.username
-            )
+            existing_user = await tm.user_repository.get_user_by_username(username)
             if existing_user:
                 raise EntityAlreadyExistsException(
-                    f"User with username '{request.username}' already exists"
+                    f"User with username '{username}' already exists"
                 )
 
-            user_data = {
-                "username": request.username,
-                "hashed_password": hash_password(request.password),
-            }
-
-            user = await tm.user_repository.create_user(user_data=user_data)
-
-            access_token = create_access_token(
-                str(user.id),
-                expires_delta=timedelta(
-                    minutes=self._security_settings.jwt_access_token_expire_minutes
-                ),
+            user = await tm.user_repository.create_user(
+                user_data={
+                    "username": username,
+                    "hashed_password": hash_password(password),
+                }
             )
 
             logger.info("User registered successfully", user_id=user.id)
 
-            return TokenResponse(
-                access_token=access_token,
-                token_type="Bearer",
-                expires_in=self._security_settings.jwt_access_token_expire_minutes * 60,
-            )
+            return {"message": "User registered successfully", "user_id": user.id}
 
-    async def authenticate_user(self, request: LoginRequest) -> TokenResponse:
-        logger.info("Authenticating user", username=request.username)
+    async def authenticate_user(self, request: dict) -> dict:
+        username = request["username"]
+        password = request["password"]
+
+        logger.info("Authenticating user", username=username)
 
         async with self._tm as tm:
-            user = await tm.user_repository.get_user_by_username(request.username)
+            user = await tm.user_repository.get_user_by_username(username)
 
             if not user:
-                logger.warning(
-                    "Login failed: user not found", username=request.username
-                )
+                logger.warning("Login failed: user not found", username=username)
                 raise UnauthorizedException("Invalid username or password")
 
-            if not verify_password(request.password, user.hashed_password):
+            if not verify_password(password, user.hashed_password):
                 logger.warning("Login failed: invalid password", user_id=user.id)
                 raise UnauthorizedException("Invalid username or password")
 
@@ -120,13 +79,14 @@ class UserUseCase:
 
             logger.info("User authenticated successfully", user_id=user.id)
 
-            return TokenResponse(
-                access_token=access_token,
-                token_type="Bearer",
-                expires_in=self._security_settings.jwt_access_token_expire_minutes * 60,
-            )
+            return {
+                "access_token": access_token,
+                "token_type": "Bearer",
+                "expires_in": self._security_settings.jwt_access_token_expire_minutes
+                * 60,
+            }
 
-    async def get_user(self, user_id: int) -> UserResponse:
+    async def get_user(self, user_id: int) -> dict:
         logger.info("Getting user", user_id=user_id)
 
         async with self._tm as tm:
@@ -135,12 +95,12 @@ class UserUseCase:
             if not user:
                 raise EntityNotFoundException(f"User with id {user_id} not found")
 
-            return UserResponse(
-                id=user.id,
-                username=user.username,
-            )
+            return {
+                "user_id": user.id,
+                "username": user.username,
+            }
 
-    async def get_user_by_username(self, username: str) -> UserResponse:
+    async def get_user_by_username(self, username: str) -> dict:
         logger.info("Getting user by username", username=username)
 
         async with self._tm as tm:
@@ -151,7 +111,7 @@ class UserUseCase:
                     f"User with username '{username}' not found"
                 )
 
-            return UserResponse(
-                id=user.id,
-                username=user.username,
-            )
+            return {
+                "id": user.id,
+                "username": user.username,
+            }

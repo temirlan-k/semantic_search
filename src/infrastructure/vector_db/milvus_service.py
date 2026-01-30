@@ -114,7 +114,7 @@ class MilvusService:
         try:
             if not connections.has_connection("default"):
                 return False
-            
+
             if self.collection:
                 self.collection.num_entities
             else:

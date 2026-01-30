@@ -21,7 +21,7 @@ async def get_metrics():
 @utils_router.get("/heatlh")
 @inject
 async def heatlhchecker(
-    db:DatabaseAdapter =  Depends(Provide[Container.db_adapter]),
+    db: DatabaseAdapter = Depends(Provide[Container.db_adapter]),
     milvus: MilvusService = Depends(Provide[Container.milvus_service]),
     ollama: OllamaService = Depends(Provide[Container.ollama_service]),
 ):
@@ -29,8 +29,4 @@ async def heatlhchecker(
     db = await db.healthcheck()
     milvus = await milvus.healthcheck()
     ollama = await ollama.healthcheck()
-    return {
-        "db":db,
-        "milvus":milvus,
-        "ollama": ollama
-    }
+    return {"db": db, "milvus": milvus, "ollama": ollama}

@@ -1,9 +1,8 @@
 import structlog
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
+from jwt import ExpiredSignatureError, InvalidTokenError
 from src.application.use_cases.user.user import UserUseCase
-from src.domain.exceptions.exceptions import UnauthorizedException
 from src.infrastructure.security.jwt_handler import decode_token
 from main.di.container import Container
 from dependency_injector.wiring import Provide, inject
@@ -24,7 +23,11 @@ async def get_current_user_id(
 
         subject: str = payload.get("sub")
         if not subject:
-            raise UnauthorizedException("Invalid Token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         user_id = int(subject)
 
@@ -32,6 +35,15 @@ async def get_current_user_id(
 
         logger.info("User authenticated", user_id=user_id)
         return user_id
-    except Exception as e:
-        logger.error("Authentication failed", error=str(e))
-        raise UnauthorizedException("Could not validate creds")
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

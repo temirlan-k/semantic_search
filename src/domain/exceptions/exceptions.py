@@ -18,7 +18,7 @@ class InvalidCredentialsException(Exception):
 
 class UnauthorizedException(Exception):
     """
-    Docstring for UnauthorizedException
+    Unauthorized
     """
 
     pass

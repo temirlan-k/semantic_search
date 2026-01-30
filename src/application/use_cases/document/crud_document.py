@@ -36,7 +36,7 @@ class CRUDDocumentUseCase:
         async with self._tm as tm:
             document = await tm.document_repository.get_document_by_id(document_id)
             if not document or document.user_id != user_id:
-                raise EntityNotFoundException("Doc not found")
+                raise EntityNotFoundException("Document not found")
         return document
 
     async def delete_document(self, document_id: int, user_id: int) -> dict:
