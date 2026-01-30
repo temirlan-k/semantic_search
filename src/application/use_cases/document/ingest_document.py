@@ -8,6 +8,11 @@ from src.infrastructure.pdf.pdf_parser import PDFParser
 from src.infrastructure.pdf.text_chunker import TextChunker
 from src.infrastructure.embeddings.ollama_service import OllamaService
 from src.infrastructure.vector_db.milvus_service import MilvusService
+from src.domain.exceptions.exceptions import (
+    DocumentProcessingException,
+    LLMServiceException,
+    VectorDBException,
+)
 
 
 class IngestDocumentUseCase:
@@ -32,7 +37,10 @@ class IngestDocumentUseCase:
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
     ):
-        pages = await self.pdf_parser.extract_text(file_content)
+        try:
+            pages = await self.pdf_parser.extract_text(file_content)
+        except Exception as e:
+            raise DocumentProcessingException(f"Failed to extract text from PDF: {str(e)}")
 
         chunker = TextChunker(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         chunks = chunker.chunk_pages(pages)
@@ -41,8 +49,13 @@ class IngestDocumentUseCase:
             raise ValueError("No text extracted from PDF")
 
         texts = [chunk.text for chunk in chunks]
-        embeddings = await self.ollama.generate_embeddings_batch(texts, batch_size=5)
-        embeddings = [normalize(e) for e in embeddings]
+        try:
+            embeddings = await self.ollama.generate_embeddings_batch(
+                texts, batch_size=5
+            )
+            embeddings = [normalize(e) for e in embeddings]
+        except Exception as e:
+            raise LLMServiceException(f"Failed to generate embeddings: {str(e)}")
 
         async with self._tm as tm:
             document_data = {
@@ -64,14 +77,17 @@ class IngestDocumentUseCase:
         chunk_indices = [chunk.chunk_index for chunk in chunks]
         filenames = [filename] * len(chunks)
 
-        await self.milvus.insert(
-            ids=ids,
-            texts=texts,
-            embeddings=embeddings,
-            page_numbers=page_numbers,
-            chunk_indices=chunk_indices,
-            filenames=filenames,
-        )
+        try:
+            await self.milvus.insert(
+                ids=ids,
+                texts=texts,
+                embeddings=embeddings,
+                page_numbers=page_numbers,
+                chunk_indices=chunk_indices,
+                filenames=filenames,
+            )
+        except Exception as e:
+            raise VectorDBException(f"Failed to insert vectors into Milvus: {str(e)}")
 
         chunk_infos = []
         for chunk, embedding in zip(chunks, embeddings):

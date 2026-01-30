@@ -1,3 +1,4 @@
+import structlog
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
@@ -6,8 +7,12 @@ from src.domain.exceptions.exceptions import (
     EntityNotFoundException,
     InvalidCredentialsException,
     UnauthorizedException,
+    DocumentProcessingException,
+    LLMServiceException,
+    VectorDBException,
 )
 
+logger = structlog.get_logger()
 
 def register_error_handlers(app):
     @app.exception_handler(EntityNotFoundException)
@@ -38,4 +43,33 @@ def register_error_handlers(app):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"message": str(exc)},
+        )
+
+    @app.exception_handler(DocumentProcessingException)
+    async def doc_processing_handler(request: Request, exc: DocumentProcessingException):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": str(exc)},
+        )
+
+    @app.exception_handler(LLMServiceException)
+    async def llm_service_handler(request: Request, exc: LLMServiceException):
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"message": str(exc)},
+        )
+
+    @app.exception_handler(VectorDBException)
+    async def vectordb_handler(request: Request, exc: VectorDBException):
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"message": str(exc)},
+        )
+    
+    @app.exception_handler(Exception)
+    async def general_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Unhandled exception: {exc}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"},
         )
