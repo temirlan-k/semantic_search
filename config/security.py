@@ -1,9 +1,10 @@
 from typing import ClassVar
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class SecuritySettings(BaseSettings):
-    jwt_secret_key: str | None = None
-    
+    jwt_secret_key: str | None = "aknandi23"
+
     aes_key: bytes | None = None
     key_length: ClassVar[int] = 32
     nonce_length: ClassVar[int] = 12
@@ -15,5 +16,5 @@ class SecuritySettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_nested_delimiter="__",
         env_file=".env",
-        extra="ignore"
+        extra="ignore",
     )

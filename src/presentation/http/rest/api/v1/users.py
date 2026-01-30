@@ -1,26 +1,44 @@
 from fastapi import APIRouter, Depends
-from src.application.use_cases.user.get_user import UserUseCase
-from src.domain.exceptions.users import UserNotFoundException
 from dependency_injector.wiring import inject, Provide
+
+from src.presentation.http.rest.api.v1.schemas.req.users import UserAuthRequest
+from src.presentation.http.rest.api.v1.schemas.res.users import (
+    UserLoginResponse,
+    UserMeResponse,
+    UserRegisterResponse,
+)
+from src.presentation.http.rest.api.deps import get_current_user_id
+from src.application.use_cases.user.user import UserUseCase
 from main.di.container import Container
-from src.presentation.http.rest.api.v1.schemas.users import UserAuthRequest
 
 users_router = APIRouter()
 
-@users_router.get("/me")
-@inject
-async def get_user(
-    user_id: str,
-    get_user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
-):
-    user = await get_user_use_case.get_user(user_id)
-    return {"user": user}
 
-@users_router.post("/")
+@users_router.post("/register", response_model=UserRegisterResponse)
 @inject
 async def create_user(
     data: UserAuthRequest,
-    create_user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
+    user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
 ):
-    user = await create_user_use_case.create_user(data=data.model_dump())
-    return {"user": user}
+    result = await user_use_case.register_user(request=data.model_dump())
+    return result
+
+
+@users_router.post("/login", response_model=UserLoginResponse)
+@inject
+async def login_user(
+    data: UserAuthRequest,
+    user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
+):
+    result = await user_use_case.authenticate_user(request=data.model_dump())
+    return result
+
+
+@users_router.post("/me", response_model=UserMeResponse)
+@inject
+async def me(
+    current_user_id: int = Depends(get_current_user_id),
+    user_use_case: UserUseCase = Depends(Provide[Container.user_use_case]),
+):
+    result = await user_use_case.get_user(user_id=current_user_id)
+    return result

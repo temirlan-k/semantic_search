@@ -1,6 +1,6 @@
 from config.config import Environment, Settings
 from main.builders.base import AbstractAppBuilder
-from main.builders.dev import DevAppBuilder
+from main.builders.dev_builder import DevAppBuilder
 
 
 BUILDERS = {

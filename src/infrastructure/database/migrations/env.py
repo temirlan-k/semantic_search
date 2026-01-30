@@ -7,7 +7,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.infrastructure.database import models
+from src.infrastructure.database import models  # noqa
 from src.infrastructure.database.models.mixins import Base
 from config.config import settings
 
@@ -37,6 +37,7 @@ target_metadata = DATABASES["metadata"]
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 def process_revision_directives(context, revision, directives):
     if not directives:
         return
@@ -47,7 +48,7 @@ def process_revision_directives(context, revision, directives):
     os.makedirs(specific_version_path, exist_ok=True)
 
     max_num = 0
-    pattern = re.compile(r'^(\d+)_')
+    pattern = re.compile(r"^(\d+)_")
     try:
         for filename in os.listdir(specific_version_path):
             match = pattern.match(filename)
@@ -59,6 +60,7 @@ def process_revision_directives(context, revision, directives):
 
     new_rev_id = f"{max_num + 1:04d}_{migration_script.rev_id}"
     migration_script.rev_id = new_rev_id
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -78,7 +80,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        process_revision_directives=process_revision_directives
+        process_revision_directives=process_revision_directives,
     )
 
     with context.begin_transaction():
@@ -98,13 +100,13 @@ def run_migrations_online() -> None:
         alembic_cfg,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
-        
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata,
-            process_revision_directives=process_revision_directives
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,
         )
 
         with context.begin_transaction():

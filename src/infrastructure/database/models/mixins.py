@@ -9,12 +9,21 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class UUIDMixin:
-    uuid: Mapped[uuid_pkg.UUID] = mapped_column(UUID(as_uuid=True), unique=True, default=uuid_pkg.uuid4, nullable=False)
+    uuid: Mapped[uuid_pkg.UUID] = mapped_column(
+        UUID(as_uuid=True), unique=True, default=uuid_pkg.uuid4, nullable=False
+    )
 
 
 class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
 
 
 class AutoincrementIDMixin:
@@ -23,4 +32,3 @@ class AutoincrementIDMixin:
 
 class Base(DeclarativeBase):
     metadata: MetaData = MetaData()
-
